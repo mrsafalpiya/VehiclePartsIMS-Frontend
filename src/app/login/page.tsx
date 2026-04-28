@@ -16,6 +16,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import Link from "next/link";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -139,6 +140,15 @@ export default function LoginPage() {
               </ListBox>
             </Select.Popover>
           </Select>
+
+          {role === "Customer" && (
+            <p className="text-sm text-gray-600">
+              Don't have an account?{" "}
+              <Link href="/register" className="text-blue-500 hover:underline">
+                Sign up
+              </Link>
+            </p>
+          )}
 
           {errorMessage && (
             <p className="text-red-500 text-sm">{errorMessage}</p>
