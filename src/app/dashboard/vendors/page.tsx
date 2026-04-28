@@ -15,8 +15,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { apiFetchDirect } from "@/lib/api";
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
 interface Vendor {
   id: number;
   vendorName: string;
@@ -38,8 +36,6 @@ interface VendorMutationInput extends VendorDto {
   vendorId?: number;
 }
 
-// ── API ──────────────────────────────────────────────────────────────────────
-
 const fetchVendors = (search: string) =>
   apiFetchDirect<Vendor[]>(
     `/api/Vendor${search ? `?search=${encodeURIComponent(search)}` : ""}`,
@@ -58,8 +54,6 @@ const saveVendor = ({ vendorId, ...dto }: VendorMutationInput) =>
 
 const removeVendor = (id: number) =>
   apiFetchDirect<string>(`/api/Vendor/${id}`, { method: "DELETE" });
-
-// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function VendorsPage() {
   const queryClient = useQueryClient();

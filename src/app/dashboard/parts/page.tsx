@@ -18,8 +18,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { apiFetchDirect } from "@/lib/api";
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
 interface Vendor {
   id: number;
   vendorName: string;
@@ -47,8 +45,6 @@ interface PartMutationInput extends PartDto {
   partId?: number;
 }
 
-// ── API ──────────────────────────────────────────────────────────────────────
-
 const fetchParts = () => apiFetchDirect<Part[]>("/api/Part");
 
 const fetchVendors = () => apiFetchDirect<Vendor[]>("/api/Vendor");
@@ -66,8 +62,6 @@ const savePart = ({ partId, ...dto }: PartMutationInput) =>
 
 const removePart = (id: number) =>
   apiFetchDirect<string>(`/api/Part/${id}`, { method: "DELETE" });
-
-// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function PartsPage() {
   const queryClient = useQueryClient();

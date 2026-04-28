@@ -92,8 +92,6 @@ const deleteVehicle = (id: number) =>
     method: "DELETE",
   });
 
-// ── Page ─────────────────────────────────────────────────────────────────────
-
 export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);

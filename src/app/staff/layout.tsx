@@ -38,6 +38,12 @@ export default function StaffLayout({
         <h1 className="font-bold text-lg mb-6">Staff Panel</h1>
         <nav className="flex flex-col gap-2 flex-1">
           <Link
+            href="/staff/customers"
+            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
+          >
+            Customers
+          </Link>
+          <Link
             href="/staff/appointments"
             className="text-sm px-2 py-1 rounded hover:bg-gray-100"
           >
