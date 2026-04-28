@@ -14,7 +14,8 @@ import {
 } from "@heroui/react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -37,27 +38,26 @@ interface LoginPayload {
   role: string;
 }
 
-async function loginRequest(
-  payload: LoginPayload,
-): Promise<ApiResponse<LoginData>> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/Auth/login`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        Email: payload.email,
-        Password: payload.password,
-        Role: payload.role,
-      }),
-    },
-  );
-  return res.json();
+function loginRequest(payload: LoginPayload): Promise<ApiResponse<LoginData>> {
+  return apiFetch<ApiResponse<LoginData>>("/api/Auth/login", {
+    method: "POST",
+    body: JSON.stringify({
+      Email: payload.email,
+      Password: payload.password,
+      Role: payload.role,
+    }),
+  });
 }
 
 export default function LoginPage() {
   const router = useRouter();
   const [role, setRole] = useState<Key>("Admin");
+
+  useEffect(() => {
+    if (localStorage.getItem("auth_token")) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   const mutation = useMutation({
     mutationFn: loginRequest,

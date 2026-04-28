@@ -15,7 +15,8 @@ import {
   TextField,
 } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 
 interface ApiResponse<T> {
@@ -232,9 +233,16 @@ function StaffForm({ initial, onClose }: StaffFormProps) {
 }
 
 export default function StaffPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
+
+  useEffect(() => {
+    if (!localStorage.getItem("auth_token")) {
+      router.replace("/login");
+    }
+  }, [router]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["staff"],
