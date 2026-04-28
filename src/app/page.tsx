@@ -1,9 +1,21 @@
-import { Button } from "@heroui/react";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="m-8">
-      <Button className={"bg-red-400"}>Hello, World!</Button>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    const raw = localStorage.getItem("auth_user");
+    if (!raw) {
+      router.replace("/login");
+      return;
+    }
+    const user = JSON.parse(raw);
+    if (user.role === "Customer") router.replace("/customer/profile");
+    else router.replace("/dashboard");
+  }, [router]);
+
+  return null;
 }

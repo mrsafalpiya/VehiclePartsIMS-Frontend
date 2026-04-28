@@ -51,12 +51,14 @@ function loginRequest(payload: LoginPayload): Promise<ApiResponse<LoginData>> {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [role, setRole] = useState<Key>("Admin");
+  const [role, setRole] = useState<Key>("Customer");
 
   useEffect(() => {
-    if (localStorage.getItem("auth_token")) {
-      router.replace("/dashboard");
-    }
+    const raw = localStorage.getItem("auth_user");
+    if (!raw) return;
+    const user = JSON.parse(raw);
+    if (user.role === "Customer") router.replace("/customer/profile");
+    else router.replace("/dashboard");
   }, [router]);
 
   const mutation = useMutation({
@@ -65,7 +67,8 @@ export default function LoginPage() {
       if (result.success && result.data) {
         localStorage.setItem("auth_token", result.data.token);
         localStorage.setItem("auth_user", JSON.stringify(result.data));
-        router.push("/dashboard");
+        if (result.data.role === "Customer") router.push("/customer/profile");
+        else router.push("/dashboard");
       }
     },
   });
@@ -127,6 +130,10 @@ export default function LoginPage() {
                 </ListBox.Item>
                 <ListBox.Item id="Staff" textValue="Staff">
                   Staff
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+                <ListBox.Item id="Customer" textValue="Customer">
+                  Customer
                   <ListBox.ItemIndicator />
                 </ListBox.Item>
               </ListBox>
