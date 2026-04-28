@@ -28,6 +28,18 @@ export default function DashboardLayout({
           >
             Staff Management
           </Link>
+          <Link
+            href="/dashboard/vendors"
+            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
+          >
+            Vendors
+          </Link>
+          <Link
+            href="/dashboard/parts"
+            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
+          >
+            Parts
+          </Link>
         </nav>
         <button
           type="button"
