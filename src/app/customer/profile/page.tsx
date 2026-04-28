@@ -12,10 +12,8 @@ import {
   TextField,
 } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
-
-// ── Types ────────────────────────────────────────────────────────────────────
 
 interface ApiResponse<T> {
   success: boolean;
@@ -50,8 +48,6 @@ interface VehicleDto {
 interface VehicleMutationInput extends VehicleDto {
   vehicleId?: number;
 }
-
-// ── API ──────────────────────────────────────────────────────────────────────
 
 const fetchProfile = () =>
   apiFetch<ApiResponse<CustomerProfile>>("/api/Customer/profile");

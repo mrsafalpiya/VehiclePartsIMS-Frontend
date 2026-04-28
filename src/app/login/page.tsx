@@ -62,6 +62,7 @@ export default function LoginPage() {
     if (!raw) return;
     const user = JSON.parse(raw);
     if (user.role === "Customer") router.replace("/customer/profile");
+    else if (user.role === "Staff") router.replace("/staff");
     else router.replace("/dashboard");
   }, [router]);
 
@@ -72,6 +73,7 @@ export default function LoginPage() {
         localStorage.setItem("auth_token", result.data.token);
         localStorage.setItem("auth_user", JSON.stringify(result.data));
         if (result.data.role === "Customer") router.push("/customer/profile");
+        else if (result.data.role === "Staff") router.push("/staff");
         else router.push("/dashboard");
       }
     },

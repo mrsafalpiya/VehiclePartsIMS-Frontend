@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function CustomerLayout({
+export default function StaffLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ export default function CustomerLayout({
 
   useEffect(() => {
     document.title =
-      "Customer Area | Vehicle Parts Selling and Inventory Management System";
+      "Staff Area | Vehicle Parts Selling and Inventory Management System";
 
     const raw = localStorage.getItem("auth_user");
     if (!raw) {
@@ -21,7 +21,9 @@ export default function CustomerLayout({
       return;
     }
     const user = JSON.parse(raw);
-    if (user.role !== "Customer") router.replace("/login");
+    if (user.role !== "Staff" && user.role !== "Admin") {
+      router.replace("/login");
+    }
   }, [router]);
 
   function logout() {
@@ -33,37 +35,13 @@ export default function CustomerLayout({
   return (
     <div className="min-h-screen flex bg-gray-100">
       <aside className="w-48 bg-white border-r border-gray-300 p-4 flex flex-col">
-        <h1 className="font-bold text-lg mb-6">My Account</h1>
+        <h1 className="font-bold text-lg mb-6">Staff Panel</h1>
         <nav className="flex flex-col gap-2 flex-1">
           <Link
-            href="/customer/profile"
+            href="/staff/appointments"
             className="text-sm px-2 py-1 rounded hover:bg-gray-100"
           >
-            Profile
-          </Link>
-          <Link
-            href="/customer/book-appointment"
-            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
-          >
-            Book Appointment
-          </Link>
-          <Link
-            href="/customer/request-part"
-            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
-          >
-            Request a Part
-          </Link>
-          <Link
-            href="/customer/review"
-            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
-          >
-            Leave a Review
-          </Link>
-          <Link
-            href="/customer/history"
-            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
-          >
-            History
+            Appointments
           </Link>
         </nav>
         <button
