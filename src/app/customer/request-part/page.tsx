@@ -17,6 +17,12 @@ interface PartRequestResponse {
   id: number;
 }
 
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message: string;
+}
+
 function getCustomerId(): number {
   const raw =
     typeof window !== "undefined" ? localStorage.getItem("auth_user") : null;
@@ -28,9 +34,9 @@ export default function RequestPartPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: (dto: { PartName: string; Notes?: string }) =>
-      apiFetchDirect<PartRequestResponse>(
-        `/api/PartRequest?customerId=${getCustomerId()}`,
+    mutationFn: (dto: { CustomerId: number; PartName: string; Notes?: string }) =>
+      apiFetchDirect<ApiResponse<PartRequestResponse>>(
+        "/api/PartRequest",
         { method: "POST", body: JSON.stringify(dto) },
       ),
     onSuccess() {
@@ -44,6 +50,7 @@ export default function RequestPartPage() {
     const fd = new FormData(e.currentTarget);
     const notes = (fd.get("notes") as string).trim();
     mutation.mutate({
+      CustomerId: getCustomerId(),
       PartName: fd.get("partName") as string,
       ...(notes ? { Notes: notes } : {}),
     });

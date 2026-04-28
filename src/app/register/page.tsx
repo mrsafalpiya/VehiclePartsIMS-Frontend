@@ -56,7 +56,7 @@ export default function RegisterPage() {
     mutationFn: registerRequest,
     onSuccess(result) {
       if (result.success) {
-        router.push("/customer/login");
+        router.push("/login");
       }
     },
   });

@@ -46,6 +46,12 @@ export default function DashboardLayout({
           >
             Parts
           </Link>
+          <Link
+            href="/dashboard/part-requests"
+            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
+          >
+            Part Requests
+          </Link>
         </nav>
         <button
           type="button"
