@@ -12,6 +12,9 @@ export default function CustomerLayout({
   const router = useRouter();
 
   useEffect(() => {
+    document.title =
+      "Customer Area | Vehicle Parts Selling and Inventory Management System";
+
     const raw = localStorage.getItem("auth_user");
     if (!raw) {
       router.replace("/login");

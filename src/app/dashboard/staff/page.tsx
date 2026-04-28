@@ -239,6 +239,9 @@ export default function StaffPage() {
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
 
   useEffect(() => {
+    document.title =
+      "Staff Management | Vehicle Parts Selling and Inventory Management System";
+
     if (!localStorage.getItem("auth_token")) {
       router.replace("/login");
     }

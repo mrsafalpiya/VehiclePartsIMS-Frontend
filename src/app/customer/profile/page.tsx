@@ -105,6 +105,11 @@ export default function ProfilePage() {
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
 
+  useEffect(() => {
+    document.title =
+      "My Profile | Vehicle Parts Selling and Inventory Management System";
+  }, []);
+
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ["customerProfile"],
     queryFn: fetchProfile,

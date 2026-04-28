@@ -15,7 +15,7 @@ import {
   TextField,
 } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiFetchDirect } from "@/lib/api";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -75,6 +75,11 @@ export default function PartsPage() {
   const [editingPart, setEditingPart] = useState<Part | null>(null);
   const [vendorId, setVendorId] = useState<Key>("");
   const [mutationError, setMutationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title =
+      "Parts Management | Vehicle Parts Selling and Inventory Management System";
+  }, []);
 
   const { data: parts = [], isLoading: partsLoading } = useQuery({
     queryKey: ["parts"],

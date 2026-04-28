@@ -55,6 +55,9 @@ export default function LoginPage() {
   const [role, setRole] = useState<Key>("Customer");
 
   useEffect(() => {
+    document.title =
+      "Login | Vehicle Parts Selling and Inventory Management System";
+
     const raw = localStorage.getItem("auth_user");
     if (!raw) return;
     const user = JSON.parse(raw);

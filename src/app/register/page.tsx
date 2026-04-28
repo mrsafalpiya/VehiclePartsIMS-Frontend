@@ -42,6 +42,9 @@ export default function RegisterPage() {
   const router = useRouter();
 
   useEffect(() => {
+    document.title =
+      "Register | Vehicle Parts Selling and Inventory Management System";
+
     const raw = localStorage.getItem("auth_user");
     if (raw) {
       const user = JSON.parse(raw);

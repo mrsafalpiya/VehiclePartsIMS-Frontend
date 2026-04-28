@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({
@@ -9,6 +10,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+
+  useEffect(() => {
+    document.title =
+      "Admin Panel | Vehicle Parts Selling and Inventory Management System";
+  }, []);
 
   function logout() {
     localStorage.removeItem("auth_token");

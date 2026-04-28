@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiFetchDirect } from "@/lib/api";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -67,6 +67,11 @@ export default function VendorsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
   const [mutationError, setMutationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title =
+      "Vendor Management | Vehicle Parts Selling and Inventory Management System";
+  }, []);
 
   const { data: vendors = [], isLoading } = useQuery({
     queryKey: ["vendors", search],
