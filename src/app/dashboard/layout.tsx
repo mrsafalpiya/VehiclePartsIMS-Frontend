@@ -52,6 +52,12 @@ export default function DashboardLayout({
           >
             Part Requests
           </Link>
+          <Link
+            href="/dashboard/purchase-invoices"
+            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
+          >
+            Purchase Invoices
+          </Link>
         </nav>
         <button
           type="button"

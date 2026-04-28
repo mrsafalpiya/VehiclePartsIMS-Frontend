@@ -34,11 +34,15 @@ export default function RequestPartPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: (dto: { CustomerId: number; PartName: string; Notes?: string }) =>
-      apiFetchDirect<ApiResponse<PartRequestResponse>>(
-        "/api/PartRequest",
-        { method: "POST", body: JSON.stringify(dto) },
-      ),
+    mutationFn: (dto: {
+      CustomerId: number;
+      PartName: string;
+      Notes?: string;
+    }) =>
+      apiFetchDirect<ApiResponse<PartRequestResponse>>("/api/PartRequest", {
+        method: "POST",
+        body: JSON.stringify(dto),
+      }),
     onSuccess() {
       setSuccess("Part request submitted.");
       setTimeout(() => setSuccess(null), 4000);

@@ -25,35 +25,42 @@ interface ApiResponse<T> {
 const STATUS_MAP: Record<string, number> = { Pending: 0, Done: 1 };
 
 const statusBadge = (status: string) => {
-  if (status === "Done")
-    return "border-green-400 text-green-700 bg-green-50";
+  if (status === "Done") return "border-green-400 text-green-700 bg-green-50";
   return "border-yellow-400 text-yellow-700 bg-yellow-50";
 };
 
 export default function PartRequestsPage() {
   const queryClient = useQueryClient();
 
-  const { data: requests = [], isLoading, isError } = useQuery({
+  const {
+    data: requests = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["partRequests"],
     queryFn: () =>
-      apiFetchDirect<ApiResponse<PartRequestResponseDto[]>>("/api/PartRequest").then(
-        (r) => r.data,
-      ),
+      apiFetchDirect<ApiResponse<PartRequestResponseDto[]>>(
+        "/api/PartRequest",
+      ).then((r) => r.data),
   });
 
   const statusMutation = useMutation({
     mutationFn: (dto: { Id: number; Status: number }) =>
-      apiFetchDirect<ApiResponse<PartRequestResponseDto>>("/api/PartRequest/status", {
-        method: "PUT",
-        body: JSON.stringify(dto),
-      }),
+      apiFetchDirect<ApiResponse<PartRequestResponseDto>>(
+        "/api/PartRequest/status",
+        {
+          method: "PUT",
+          body: JSON.stringify(dto),
+        },
+      ),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ["partRequests"] });
     },
   });
 
   function toggleStatus(req: PartRequestResponseDto) {
-    const next = req.status === "Pending" ? STATUS_MAP.Done : STATUS_MAP.Pending;
+    const next =
+      req.status === "Pending" ? STATUS_MAP.Done : STATUS_MAP.Pending;
     statusMutation.mutate({ Id: req.id, Status: next });
   }
 
@@ -75,20 +82,35 @@ export default function PartRequestsPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left px-4 py-2 font-medium text-gray-600">Customer</th>
-                <th className="text-left px-4 py-2 font-medium text-gray-600">Part Name</th>
-                <th className="text-left px-4 py-2 font-medium text-gray-600">Notes</th>
-                <th className="text-left px-4 py-2 font-medium text-gray-600">Submitted</th>
-                <th className="text-left px-4 py-2 font-medium text-gray-600">Status</th>
+                <th className="text-left px-4 py-2 font-medium text-gray-600">
+                  Customer
+                </th>
+                <th className="text-left px-4 py-2 font-medium text-gray-600">
+                  Part Name
+                </th>
+                <th className="text-left px-4 py-2 font-medium text-gray-600">
+                  Notes
+                </th>
+                <th className="text-left px-4 py-2 font-medium text-gray-600">
+                  Submitted
+                </th>
+                <th className="text-left px-4 py-2 font-medium text-gray-600">
+                  Status
+                </th>
                 <th className="px-4 py-2" />
               </tr>
             </thead>
             <tbody>
               {requests.map((req) => (
-                <tr key={req.id} className="border-b border-gray-100 last:border-0">
+                <tr
+                  key={req.id}
+                  className="border-b border-gray-100 last:border-0"
+                >
                   <td className="px-4 py-2">{req.customerName}</td>
                   <td className="px-4 py-2 font-medium">{req.partName}</td>
-                  <td className="px-4 py-2 text-gray-500">{req.notes ?? "—"}</td>
+                  <td className="px-4 py-2 text-gray-500">
+                    {req.notes ?? "—"}
+                  </td>
                   <td className="px-4 py-2 text-gray-500">
                     {new Date(req.createdAt).toLocaleDateString(undefined, {
                       year: "numeric",
@@ -116,7 +138,9 @@ export default function PartRequestsPage() {
                       {({ isPending }) => (
                         <>
                           {isPending && <Spinner color="current" size="sm" />}
-                          {req.status === "Pending" ? "Mark Done" : "Mark Pending"}
+                          {req.status === "Pending"
+                            ? "Mark Done"
+                            : "Mark Pending"}
                         </>
                       )}
                     </Button>
