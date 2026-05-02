@@ -7,7 +7,7 @@ const menuItems: MenuProps['items'] = [
   { key: '/customer/profile', label: 'My Profile' },
   { key: '/customer/vehicles', label: 'My Vehicles' },
   { key: '/customer/appointments', label: 'Book Appointment' },
-  { key: '/customer/part-requests', label: 'Request Part' },
+  { key: '/customer/request-part', label: 'Request Part' },
   { key: '/customer/purchase-history', label: 'Purchase History' },
   { key: '/customer/service-history', label: 'Service History' },
   { key: '/customer/reviews', label: 'Write Review' },

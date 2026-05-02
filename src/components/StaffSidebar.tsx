@@ -5,7 +5,7 @@ import type { MenuProps } from 'antd'
 const menuItems: MenuProps['items'] = [
   { key: '/staff', label: 'Dashboard' },
   { key: '/staff/customers', label: 'Customers' },
-  { key: '/staff/sales/new', label: 'New Sale' },
+  { key: '/staff/sales/new-sale', label: 'New Sale' },
   { key: '/staff/customer-reports', label: 'Customer Reports' },
   { key: '/staff/customer-search', label: 'Customer Search' },
 ]

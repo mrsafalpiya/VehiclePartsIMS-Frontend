@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+// @ts-ignore
 import { Card, Descriptions, Typography } from 'antd'
 
 export const Route = createFileRoute('/about')({
   component: AboutPage,
 })
+
+
 
 function AboutPage() {
   return (
