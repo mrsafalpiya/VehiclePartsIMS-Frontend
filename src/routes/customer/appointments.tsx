@@ -61,8 +61,10 @@ function StatusTag({ status }: { status: string }) {
 }
 
 function CustomerAppointmentsPage() {
-    const { currentUser } = useAuth()
-    const customerId = Number((currentUser as any)?.id ?? 0)
+   // const { currentUser } = useAuth()
+   //  const customerId = Number((currentUser as any)?.id ?? 0)
+    useAuth()
+    const customerId = 1 // TODO: replace with real JWT customer id
     const [form] = Form.useForm()
     const [appointments, setAppointments] = useState<AppointmentResponseDto[]>([])
     const [loading, setLoading]           = useState(false)

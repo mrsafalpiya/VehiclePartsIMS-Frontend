@@ -53,8 +53,10 @@ function StarTag({ rating }: { rating: number }) {
 }
 
 function CustomerReviewsPage() {
-    const { currentUser } = useAuth()
-    const customerId = Number((currentUser as any)?.id ?? 0)
+   //  const { currentUser } = useAuth()
+    // const customerId = Number((currentUser as any)?.id ?? 0)
+    useAuth()
+    const customerId = 1 // TODO: replace with real JWT customer id
     const [form] = Form.useForm()
     const [reviews, setReviews]       = useState<ServiceReviewResponseDto[]>([])
     const [loading, setLoading]       = useState(false)
