@@ -19,6 +19,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as StaffIndexRouteImport } from './routes/staff/index'
 import { Route as CustomerIndexRouteImport } from './routes/customer/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as CustomerReviewsRouteImport } from './routes/customer/reviews'
+import { Route as CustomerRequestPartRouteImport } from './routes/customer/request-part'
+import { Route as CustomerAppointmentsRouteImport } from './routes/customer/appointments'
+import { Route as AdminPartRequestsRouteImport } from './routes/admin/part-requests'
 
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
@@ -70,6 +74,26 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const CustomerReviewsRoute = CustomerReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const CustomerRequestPartRoute = CustomerRequestPartRouteImport.update({
+  id: '/request-part',
+  path: '/request-part',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const CustomerAppointmentsRoute = CustomerAppointmentsRouteImport.update({
+  id: '/appointments',
+  path: '/appointments',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const AdminPartRequestsRoute = AdminPartRequestsRouteImport.update({
+  id: '/part-requests',
+  path: '/part-requests',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -79,6 +103,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/staff': typeof StaffRouteWithChildren
+  '/admin/part-requests': typeof AdminPartRequestsRoute
+  '/customer/appointments': typeof CustomerAppointmentsRoute
+  '/customer/request-part': typeof CustomerRequestPartRoute
+  '/customer/reviews': typeof CustomerReviewsRoute
   '/admin/': typeof AdminIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/staff/': typeof StaffIndexRoute
@@ -88,6 +116,10 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/admin/part-requests': typeof AdminPartRequestsRoute
+  '/customer/appointments': typeof CustomerAppointmentsRoute
+  '/customer/request-part': typeof CustomerRequestPartRoute
+  '/customer/reviews': typeof CustomerReviewsRoute
   '/admin': typeof AdminIndexRoute
   '/customer': typeof CustomerIndexRoute
   '/staff': typeof StaffIndexRoute
@@ -101,6 +133,10 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/staff': typeof StaffRouteWithChildren
+  '/admin/part-requests': typeof AdminPartRequestsRoute
+  '/customer/appointments': typeof CustomerAppointmentsRoute
+  '/customer/request-part': typeof CustomerRequestPartRoute
+  '/customer/reviews': typeof CustomerReviewsRoute
   '/admin/': typeof AdminIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/staff/': typeof StaffIndexRoute
@@ -115,6 +151,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/staff'
+    | '/admin/part-requests'
+    | '/customer/appointments'
+    | '/customer/request-part'
+    | '/customer/reviews'
     | '/admin/'
     | '/customer/'
     | '/staff/'
@@ -124,6 +164,10 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/register'
+    | '/admin/part-requests'
+    | '/customer/appointments'
+    | '/customer/request-part'
+    | '/customer/reviews'
     | '/admin'
     | '/customer'
     | '/staff'
@@ -136,6 +180,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/staff'
+    | '/admin/part-requests'
+    | '/customer/appointments'
+    | '/customer/request-part'
+    | '/customer/reviews'
     | '/admin/'
     | '/customer/'
     | '/staff/'
@@ -223,24 +271,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/customer/reviews': {
+      id: '/customer/reviews'
+      path: '/reviews'
+      fullPath: '/customer/reviews'
+      preLoaderRoute: typeof CustomerReviewsRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/customer/request-part': {
+      id: '/customer/request-part'
+      path: '/request-part'
+      fullPath: '/customer/request-part'
+      preLoaderRoute: typeof CustomerRequestPartRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/customer/appointments': {
+      id: '/customer/appointments'
+      path: '/appointments'
+      fullPath: '/customer/appointments'
+      preLoaderRoute: typeof CustomerAppointmentsRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/admin/part-requests': {
+      id: '/admin/part-requests'
+      path: '/part-requests'
+      fullPath: '/admin/part-requests'
+      preLoaderRoute: typeof AdminPartRequestsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminPartRequestsRoute: typeof AdminPartRequestsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminPartRequestsRoute: AdminPartRequestsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface CustomerRouteChildren {
+  CustomerAppointmentsRoute: typeof CustomerAppointmentsRoute
+  CustomerRequestPartRoute: typeof CustomerRequestPartRoute
+  CustomerReviewsRoute: typeof CustomerReviewsRoute
   CustomerIndexRoute: typeof CustomerIndexRoute
 }
 
 const CustomerRouteChildren: CustomerRouteChildren = {
+  CustomerAppointmentsRoute: CustomerAppointmentsRoute,
+  CustomerRequestPartRoute: CustomerRequestPartRoute,
+  CustomerReviewsRoute: CustomerReviewsRoute,
   CustomerIndexRoute: CustomerIndexRoute,
 }
 
