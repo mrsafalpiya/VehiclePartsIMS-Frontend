@@ -19,6 +19,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as StaffIndexRouteImport } from './routes/staff/index'
 import { Route as CustomerIndexRouteImport } from './routes/customer/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as StaffSalesInvoicesRouteImport } from './routes/staff/sales-invoices'
+import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
@@ -70,6 +72,16 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const StaffSalesInvoicesRoute = StaffSalesInvoicesRouteImport.update({
+  id: '/sales-invoices',
+  path: '/sales-invoices',
+  getParentRoute: () => StaffRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -79,6 +91,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/staff': typeof StaffRouteWithChildren
+  '/admin/reports': typeof AdminReportsRoute
+  '/staff/sales-invoices': typeof StaffSalesInvoicesRoute
   '/admin/': typeof AdminIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/staff/': typeof StaffIndexRoute
@@ -88,6 +102,8 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/staff/sales-invoices': typeof StaffSalesInvoicesRoute
   '/admin': typeof AdminIndexRoute
   '/customer': typeof CustomerIndexRoute
   '/staff': typeof StaffIndexRoute
@@ -101,6 +117,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/staff': typeof StaffRouteWithChildren
+  '/admin/reports': typeof AdminReportsRoute
+  '/staff/sales-invoices': typeof StaffSalesInvoicesRoute
   '/admin/': typeof AdminIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/staff/': typeof StaffIndexRoute
@@ -115,6 +133,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/staff'
+    | '/admin/reports'
+    | '/staff/sales-invoices'
     | '/admin/'
     | '/customer/'
     | '/staff/'
@@ -124,6 +144,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/register'
+    | '/admin/reports'
+    | '/staff/sales-invoices'
     | '/admin'
     | '/customer'
     | '/staff'
@@ -136,6 +158,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/staff'
+    | '/admin/reports'
+    | '/staff/sales-invoices'
     | '/admin/'
     | '/customer/'
     | '/staff/'
@@ -223,14 +247,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/staff/sales-invoices': {
+      id: '/staff/sales-invoices'
+      path: '/sales-invoices'
+      fullPath: '/staff/sales-invoices'
+      preLoaderRoute: typeof StaffSalesInvoicesRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminReportsRoute: typeof AdminReportsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminReportsRoute: AdminReportsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
@@ -249,10 +289,12 @@ const CustomerRouteWithChildren = CustomerRoute._addFileChildren(
 )
 
 interface StaffRouteChildren {
+  StaffSalesInvoicesRoute: typeof StaffSalesInvoicesRoute
   StaffIndexRoute: typeof StaffIndexRoute
 }
 
 const StaffRouteChildren: StaffRouteChildren = {
+  StaffSalesInvoicesRoute: StaffSalesInvoicesRoute,
   StaffIndexRoute: StaffIndexRoute,
 }
 
