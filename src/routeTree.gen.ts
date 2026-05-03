@@ -19,8 +19,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as StaffIndexRouteImport } from './routes/staff/index'
 import { Route as CustomerIndexRouteImport } from './routes/customer/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as CustomerServiceHistoryRouteImport } from './routes/customer/service-history'
 import { Route as CustomerReviewsRouteImport } from './routes/customer/reviews'
 import { Route as CustomerRequestPartRouteImport } from './routes/customer/request-part'
+import { Route as CustomerPurchaseHistoryRouteImport } from './routes/customer/purchase-history'
 import { Route as CustomerAppointmentsRouteImport } from './routes/customer/appointments'
 import { Route as AdminPartRequestsRouteImport } from './routes/admin/part-requests'
 
@@ -74,6 +76,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const CustomerServiceHistoryRoute = CustomerServiceHistoryRouteImport.update({
+  id: '/service-history',
+  path: '/service-history',
+  getParentRoute: () => CustomerRoute,
+} as any)
 const CustomerReviewsRoute = CustomerReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
@@ -82,6 +89,11 @@ const CustomerReviewsRoute = CustomerReviewsRouteImport.update({
 const CustomerRequestPartRoute = CustomerRequestPartRouteImport.update({
   id: '/request-part',
   path: '/request-part',
+  getParentRoute: () => CustomerRoute,
+} as any)
+const CustomerPurchaseHistoryRoute = CustomerPurchaseHistoryRouteImport.update({
+  id: '/purchase-history',
+  path: '/purchase-history',
   getParentRoute: () => CustomerRoute,
 } as any)
 const CustomerAppointmentsRoute = CustomerAppointmentsRouteImport.update({
@@ -105,8 +117,10 @@ export interface FileRoutesByFullPath {
   '/staff': typeof StaffRouteWithChildren
   '/admin/part-requests': typeof AdminPartRequestsRoute
   '/customer/appointments': typeof CustomerAppointmentsRoute
+  '/customer/purchase-history': typeof CustomerPurchaseHistoryRoute
   '/customer/request-part': typeof CustomerRequestPartRoute
   '/customer/reviews': typeof CustomerReviewsRoute
+  '/customer/service-history': typeof CustomerServiceHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/staff/': typeof StaffIndexRoute
@@ -118,8 +132,10 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/admin/part-requests': typeof AdminPartRequestsRoute
   '/customer/appointments': typeof CustomerAppointmentsRoute
+  '/customer/purchase-history': typeof CustomerPurchaseHistoryRoute
   '/customer/request-part': typeof CustomerRequestPartRoute
   '/customer/reviews': typeof CustomerReviewsRoute
+  '/customer/service-history': typeof CustomerServiceHistoryRoute
   '/admin': typeof AdminIndexRoute
   '/customer': typeof CustomerIndexRoute
   '/staff': typeof StaffIndexRoute
@@ -135,8 +151,10 @@ export interface FileRoutesById {
   '/staff': typeof StaffRouteWithChildren
   '/admin/part-requests': typeof AdminPartRequestsRoute
   '/customer/appointments': typeof CustomerAppointmentsRoute
+  '/customer/purchase-history': typeof CustomerPurchaseHistoryRoute
   '/customer/request-part': typeof CustomerRequestPartRoute
   '/customer/reviews': typeof CustomerReviewsRoute
+  '/customer/service-history': typeof CustomerServiceHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/customer/': typeof CustomerIndexRoute
   '/staff/': typeof StaffIndexRoute
@@ -153,8 +171,10 @@ export interface FileRouteTypes {
     | '/staff'
     | '/admin/part-requests'
     | '/customer/appointments'
+    | '/customer/purchase-history'
     | '/customer/request-part'
     | '/customer/reviews'
+    | '/customer/service-history'
     | '/admin/'
     | '/customer/'
     | '/staff/'
@@ -166,8 +186,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/admin/part-requests'
     | '/customer/appointments'
+    | '/customer/purchase-history'
     | '/customer/request-part'
     | '/customer/reviews'
+    | '/customer/service-history'
     | '/admin'
     | '/customer'
     | '/staff'
@@ -182,8 +204,10 @@ export interface FileRouteTypes {
     | '/staff'
     | '/admin/part-requests'
     | '/customer/appointments'
+    | '/customer/purchase-history'
     | '/customer/request-part'
     | '/customer/reviews'
+    | '/customer/service-history'
     | '/admin/'
     | '/customer/'
     | '/staff/'
@@ -271,6 +295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/customer/service-history': {
+      id: '/customer/service-history'
+      path: '/service-history'
+      fullPath: '/customer/service-history'
+      preLoaderRoute: typeof CustomerServiceHistoryRouteImport
+      parentRoute: typeof CustomerRoute
+    }
     '/customer/reviews': {
       id: '/customer/reviews'
       path: '/reviews'
@@ -283,6 +314,13 @@ declare module '@tanstack/react-router' {
       path: '/request-part'
       fullPath: '/customer/request-part'
       preLoaderRoute: typeof CustomerRequestPartRouteImport
+      parentRoute: typeof CustomerRoute
+    }
+    '/customer/purchase-history': {
+      id: '/customer/purchase-history'
+      path: '/purchase-history'
+      fullPath: '/customer/purchase-history'
+      preLoaderRoute: typeof CustomerPurchaseHistoryRouteImport
       parentRoute: typeof CustomerRoute
     }
     '/customer/appointments': {
@@ -316,15 +354,19 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface CustomerRouteChildren {
   CustomerAppointmentsRoute: typeof CustomerAppointmentsRoute
+  CustomerPurchaseHistoryRoute: typeof CustomerPurchaseHistoryRoute
   CustomerRequestPartRoute: typeof CustomerRequestPartRoute
   CustomerReviewsRoute: typeof CustomerReviewsRoute
+  CustomerServiceHistoryRoute: typeof CustomerServiceHistoryRoute
   CustomerIndexRoute: typeof CustomerIndexRoute
 }
 
 const CustomerRouteChildren: CustomerRouteChildren = {
   CustomerAppointmentsRoute: CustomerAppointmentsRoute,
+  CustomerPurchaseHistoryRoute: CustomerPurchaseHistoryRoute,
   CustomerRequestPartRoute: CustomerRequestPartRoute,
   CustomerReviewsRoute: CustomerReviewsRoute,
+  CustomerServiceHistoryRoute: CustomerServiceHistoryRoute,
   CustomerIndexRoute: CustomerIndexRoute,
 }
 
