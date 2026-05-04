@@ -13,7 +13,7 @@ import {
   Table,
   TextField,
 } from "@heroui/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { apiFetchDirect } from "@/lib/api";
 
@@ -66,6 +66,7 @@ function makeUid() {
 }
 
 export default function PurchaseInvoicesPage() {
+  const queryClient = useQueryClient();
   const [vendorId, setVendorId] = useState<Key>("");
   const [invoiceDate, setInvoiceDate] = useState<string>(
     new Date().toISOString().split("T")[0],
@@ -74,7 +75,6 @@ export default function PurchaseInvoicesPage() {
     { uid: makeUid(), partId: "", quantity: "", unitCostPrice: "" },
   ]);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState<PurchaseInvoiceResponseDto[]>([]);
   const [viewingInvoice, setViewingInvoice] =
     useState<PurchaseInvoiceResponseDto | null>(null);
 
@@ -93,6 +93,18 @@ export default function PurchaseInvoicesPage() {
     queryFn: () => apiFetchDirect<Part[]>("/api/Part"),
   });
 
+  const {
+    data: invoices = [],
+    isLoading: invoicesLoading,
+    isError: invoicesError,
+  } = useQuery({
+    queryKey: ["purchaseInvoices"],
+    queryFn: () =>
+      apiFetchDirect<ApiResponse<PurchaseInvoiceResponseDto[]>>(
+        "/api/PurchaseInvoice",
+      ).then((r) => r.data),
+  });
+
   const createMutation = useMutation({
     mutationFn: (dto: {
       VendorId: number;
@@ -103,8 +115,8 @@ export default function PurchaseInvoicesPage() {
         "/api/PurchaseInvoice",
         { method: "POST", body: JSON.stringify(dto) },
       ),
-    onSuccess(res) {
-      setSubmitted((prev) => [res.data, ...prev]);
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["purchaseInvoices"] });
       // Reset form
       setVendorId("");
       setInvoiceDate(new Date().toISOString().split("T")[0]);
@@ -394,9 +406,21 @@ export default function PurchaseInvoicesPage() {
       </div>
 
       {/* Invoice list */}
-      {submitted.length > 0 && (
-        <div>
-          <h3 className="font-semibold mb-3">Invoices Created This Session</h3>
+      <div>
+        <h3 className="font-semibold mb-3">All Purchase Invoices</h3>
+
+        {invoicesLoading && (
+          <div className="flex items-center gap-2 text-gray-500 text-sm">
+            <Spinner size="sm" />
+            Loading invoices...
+          </div>
+        )}
+
+        {invoicesError && (
+          <p className="text-red-600 text-sm">Failed to load invoices.</p>
+        )}
+
+        {!invoicesLoading && !invoicesError && (
           <Table>
             <Table.ScrollContainer>
               <Table.Content aria-label="Purchase invoices">
@@ -408,8 +432,14 @@ export default function PurchaseInvoicesPage() {
                   <Table.Column>Total</Table.Column>
                   <Table.Column>Actions</Table.Column>
                 </Table.Header>
-                <Table.Body>
-                  {submitted.map((inv) => (
+                <Table.Body
+                  renderEmptyState={() => (
+                    <p className="text-center text-sm text-gray-500 py-6">
+                      No purchase invoices yet.
+                    </p>
+                  )}
+                >
+                  {invoices.map((inv) => (
                     <Table.Row key={inv.id} id={inv.id}>
                       <Table.Cell>
                         <span className="font-medium text-sm">
@@ -439,8 +469,8 @@ export default function PurchaseInvoicesPage() {
               </Table.Content>
             </Table.ScrollContainer>
           </Table>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Invoice detail modal */}
       <Modal.Backdrop isOpen={viewingInvoice !== null}>
