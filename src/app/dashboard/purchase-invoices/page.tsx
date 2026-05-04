@@ -7,8 +7,10 @@ import {
   Input,
   Label,
   ListBox,
+  Modal,
   Select,
   Spinner,
+  Table,
   TextField,
 } from "@heroui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -65,6 +67,9 @@ function makeUid() {
 
 export default function PurchaseInvoicesPage() {
   const [vendorId, setVendorId] = useState<Key>("");
+  const [invoiceDate, setInvoiceDate] = useState<string>(
+    new Date().toISOString().split("T")[0],
+  );
   const [items, setItems] = useState<LineItem[]>([
     { uid: makeUid(), partId: "", quantity: "", unitCostPrice: "" },
   ]);
@@ -91,6 +96,7 @@ export default function PurchaseInvoicesPage() {
   const createMutation = useMutation({
     mutationFn: (dto: {
       VendorId: number;
+      InvoiceDate: string;
       Items: { PartId: number; Quantity: number; UnitCostPrice: number }[];
     }) =>
       apiFetchDirect<ApiResponse<PurchaseInvoiceResponseDto>>(
@@ -101,6 +107,7 @@ export default function PurchaseInvoicesPage() {
       setSubmitted((prev) => [res.data, ...prev]);
       // Reset form
       setVendorId("");
+      setInvoiceDate(new Date().toISOString().split("T")[0]);
       setItems([
         { uid: makeUid(), partId: "", quantity: "", unitCostPrice: "" },
       ]);
@@ -165,8 +172,14 @@ export default function PurchaseInvoicesPage() {
       return;
     }
 
+    if (!invoiceDate) {
+      setValidationError("Please select an invoice date.");
+      return;
+    }
+
     createMutation.mutate({
       VendorId: Number.parseInt(String(vendorId), 10),
+      InvoiceDate: invoiceDate,
       Items: items.map((i) => ({
         PartId: Number.parseInt(String(i.partId), 10),
         Quantity: Number.parseInt(i.quantity, 10),
@@ -175,207 +188,199 @@ export default function PurchaseInvoicesPage() {
     });
   }
 
-  if (viewingInvoice) {
-    return (
-      <div className="max-w-lg">
-        <button
-          type="button"
-          className="text-sm text-gray-500 hover:underline mb-4"
-          onClick={() => setViewingInvoice(null)}
-        >
-          ← Back
-        </button>
-        <div className="bg-white border border-gray-300 rounded p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="font-bold text-lg">
-                {viewingInvoice.invoiceNumber}
-              </p>
-              <p className="text-sm text-gray-500">
-                {viewingInvoice.invoiceDate}
-              </p>
-            </div>
-            <p className="text-sm text-gray-600">{viewingInvoice.vendorName}</p>
-          </div>
+  const lineTotal = (item: LineItem) => {
+    const qty = Number.parseInt(item.quantity, 10);
+    const price = Number.parseInt(item.unitCostPrice, 10);
+    if (Number.isNaN(qty) || Number.isNaN(price)) return null;
+    return qty * price;
+  };
 
-          <table className="w-full text-sm mb-4">
-            <thead>
-              <tr className="text-left text-gray-500 border-b border-gray-200">
-                <th className="pb-1 font-normal">Part</th>
-                <th className="pb-1 font-normal text-right">Qty</th>
-                <th className="pb-1 font-normal text-right">Unit Cost</th>
-                <th className="pb-1 font-normal text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {viewingInvoice.items.map((item) => (
-                <tr key={item.partName} className="border-b border-gray-100">
-                  <td className="py-1">{item.partName}</td>
-                  <td className="py-1 text-right">{item.quantity}</td>
-                  <td className="py-1 text-right">
-                    {formatAmount(item.unitCostPrice)}
-                  </td>
-                  <td className="py-1 text-right">
-                    {formatAmount(item.totalPrice)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="flex justify-end">
-            <p className="font-semibold text-sm">
-              Total: {formatAmount(viewingInvoice.totalAmount)}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const grandTotal = items.reduce<number>((sum, item) => {
+    const t = lineTotal(item);
+    return t !== null ? sum + t : sum;
+  }, 0);
 
   return (
-    <div className="flex flex-col gap-8 max-w-2xl">
+    <div className="flex flex-col gap-8 max-w-3xl">
       <h2 className="text-xl font-bold">Purchase Invoices</h2>
 
       {/* Create form */}
-      <div className="bg-white border border-gray-300 rounded p-6">
-        <h3 className="font-semibold mb-4">New Purchase Invoice</h3>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Vendor */}
-          <Select
-            isRequired
-            fullWidth
-            value={vendorId}
-            onChange={(v) => v && setVendorId(v)}
-            placeholder="Select a vendor"
-          >
-            <Label>Vendor</Label>
-            <Select.Trigger>
-              <Select.Value />
-              <Select.Indicator />
-            </Select.Trigger>
-            <Select.Popover>
-              <ListBox>
-                {vendors.map((v) => (
-                  <ListBox.Item
-                    key={v.id}
-                    id={String(v.id)}
-                    textValue={v.vendorName}
-                  >
-                    {v.vendorName}
-                    <ListBox.ItemIndicator />
-                  </ListBox.Item>
-                ))}
-              </ListBox>
-            </Select.Popover>
-          </Select>
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h3 className="font-semibold text-base">New Purchase Invoice</h3>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Fill in the vendor, date, and line items then save.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
+          {/* Vendor + Date row */}
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              isRequired
+              fullWidth
+              value={vendorId}
+              onChange={(v) => v && setVendorId(v)}
+              placeholder="Select a vendor"
+            >
+              <Label>Vendor</Label>
+              <Select.Trigger>
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  {vendors.map((v) => (
+                    <ListBox.Item
+                      key={v.id}
+                      id={String(v.id)}
+                      textValue={v.vendorName}
+                    >
+                      {v.vendorName}
+                      <ListBox.ItemIndicator />
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
+
+            <TextField
+              isRequired
+              fullWidth
+              value={invoiceDate}
+              onChange={setInvoiceDate}
+            >
+              <Label>Invoice Date</Label>
+              <Input type="date" />
+              <FieldError />
+            </TextField>
+          </div>
 
           {/* Line items */}
           <div>
-            <p className="text-sm font-medium mb-2">Line Items</p>
-            <div className="flex flex-col gap-3">
-              {items.map((item, idx) => (
-                <div
-                  key={item.uid}
-                  className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-end"
-                >
-                  {/* Part dropdown */}
-                  <Select
-                    isRequired
-                    fullWidth
-                    value={item.partId}
-                    onChange={(v) => v && updateItem(item.uid, { partId: v })}
-                    placeholder="Select a part"
-                  >
-                    {idx === 0 && <Label>Part</Label>}
-                    <Select.Trigger>
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        {parts.map((p) => (
-                          <ListBox.Item
-                            key={p.id}
-                            id={String(p.id)}
-                            textValue={p.partName}
-                          >
-                            {p.partName} ({p.partCode})
-                            <ListBox.ItemIndicator />
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                  </Select>
+            <p className="text-sm font-medium mb-3">Line Items</p>
 
-                  {/* Quantity */}
-                  <TextField
-                    isRequired
-                    value={item.quantity}
-                    onChange={(v) => updateItem(item.uid, { quantity: v })}
-                    aria-label={`Quantity for item ${idx + 1}`}
-                  >
-                    {idx === 0 && <Label>Qty</Label>}
-                    <Input
-                      type="number"
-                      min="1"
-                      step="1"
-                      placeholder="1"
-                      className="w-20"
-                    />
-                    <FieldError />
-                  </TextField>
+            {/* Header row */}
+            <div className="grid grid-cols-[1fr_90px_110px_90px_32px] gap-2 mb-1 px-1">
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Part
+              </span>
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Qty
+              </span>
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Unit Cost (Rs.)
+              </span>
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide text-right">
+                Total
+              </span>
+              <span />
+            </div>
 
-                  {/* Unit cost price */}
-                  <TextField
-                    isRequired
-                    value={item.unitCostPrice}
-                    onChange={(v) => updateItem(item.uid, { unitCostPrice: v })}
-                    aria-label={`Unit cost price for item ${idx + 1}`}
+            <div className="flex flex-col gap-2">
+              {items.map((item) => {
+                const total = lineTotal(item);
+                return (
+                  <div
+                    key={item.uid}
+                    className="grid grid-cols-[1fr_90px_110px_90px_32px] gap-2 items-center bg-gray-50 rounded px-2 py-2"
                   >
-                    {idx === 0 && <Label>Unit Cost</Label>}
+                    <Select
+                      isRequired
+                      fullWidth
+                      value={item.partId}
+                      onChange={(v) => v && updateItem(item.uid, { partId: v })}
+                      placeholder="Select part"
+                    >
+                      <Select.Trigger>
+                        <Select.Value />
+                        <Select.Indicator />
+                      </Select.Trigger>
+                      <Select.Popover>
+                        <ListBox>
+                          {parts.map((p) => (
+                            <ListBox.Item
+                              key={p.id}
+                              id={String(p.id)}
+                              textValue={p.partName}
+                            >
+                              {p.partName} ({p.partCode})
+                              <ListBox.ItemIndicator />
+                            </ListBox.Item>
+                          ))}
+                        </ListBox>
+                      </Select.Popover>
+                    </Select>
+
                     <Input
                       type="number"
                       min="1"
                       step="1"
                       placeholder="0"
-                      className="w-28"
+                      value={item.quantity}
+                      aria-label="Quantity"
+                      onChange={(e) =>
+                        updateItem(item.uid, { quantity: e.target.value })
+                      }
                     />
-                    <FieldError />
-                  </TextField>
 
-                  {/* Remove row */}
-                  <div className={idx === 0 ? "pt-5" : ""}>
+                    <Input
+                      type="number"
+                      min="1"
+                      step="1"
+                      placeholder="0"
+                      value={item.unitCostPrice}
+                      aria-label="Unit cost price"
+                      onChange={(e) =>
+                        updateItem(item.uid, { unitCostPrice: e.target.value })
+                      }
+                    />
+
+                    <span className="text-sm text-right text-gray-700 font-medium tabular-nums">
+                      {total !== null ? formatAmount(total) : "—"}
+                    </span>
+
                     <button
                       type="button"
                       disabled={items.length === 1}
                       onClick={() => removeItem(item.uid)}
-                      className="text-red-500 text-sm px-2 py-1 rounded hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center w-7 h-7 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Remove item"
                     >
                       ✕
                     </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            <button
-              type="button"
-              onClick={addItem}
-              className="mt-3 text-sm text-gray-600 hover:underline"
-            >
-              + Add item
-            </button>
+            <div className="flex items-center justify-between mt-3">
+              <button
+                type="button"
+                onClick={addItem}
+                className="text-sm text-gray-500 hover:text-gray-800 hover:underline"
+              >
+                + Add line item
+              </button>
+              {grandTotal > 0 && (
+                <p className="text-sm font-semibold text-gray-700">
+                  Estimated total:{" "}
+                  <span className="text-gray-900">
+                    {formatAmount(grandTotal)}
+                  </span>
+                </p>
+              )}
+            </div>
           </div>
 
           {(validationError ?? createMutation.isError) && (
-            <p className="text-red-500 text-sm">
+            <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded px-3 py-2">
               {validationError ??
                 (createMutation.error as Error | null)?.message}
             </p>
           )}
 
-          <div className="flex justify-end pt-1">
+          <div className="flex justify-end pt-1 border-t border-gray-100">
             <Button type="submit" isPending={createMutation.isPending}>
               {({ isPending }) => (
                 <>
@@ -388,61 +393,124 @@ export default function PurchaseInvoicesPage() {
         </form>
       </div>
 
-      {/* Session invoice list */}
+      {/* Invoice list */}
       {submitted.length > 0 && (
         <div>
           <h3 className="font-semibold mb-3">Invoices Created This Session</h3>
-          <div className="bg-white border border-gray-300 rounded overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="text-left px-4 py-2 font-medium text-gray-600">
-                    Invoice #
-                  </th>
-                  <th className="text-left px-4 py-2 font-medium text-gray-600">
-                    Date
-                  </th>
-                  <th className="text-left px-4 py-2 font-medium text-gray-600">
-                    Vendor
-                  </th>
-                  <th className="text-right px-4 py-2 font-medium text-gray-600">
-                    Total
-                  </th>
-                  <th className="px-4 py-2" />
-                </tr>
-              </thead>
-              <tbody>
-                {submitted.map((inv) => (
-                  <tr
-                    key={inv.id}
-                    className="border-b border-gray-100 last:border-0"
-                  >
-                    <td className="px-4 py-2 font-medium">
-                      {inv.invoiceNumber}
-                    </td>
-                    <td className="px-4 py-2 text-gray-500">
-                      {inv.invoiceDate}
-                    </td>
-                    <td className="px-4 py-2">{inv.vendorName}</td>
-                    <td className="px-4 py-2 text-right">
-                      {formatAmount(inv.totalAmount)}
-                    </td>
-                    <td className="px-4 py-2">
-                      <button
-                        type="button"
-                        className="text-sm text-gray-600 hover:underline"
-                        onClick={() => setViewingInvoice(inv)}
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <Table.ScrollContainer>
+              <Table.Content aria-label="Purchase invoices">
+                <Table.Header>
+                  <Table.Column isRowHeader>Invoice #</Table.Column>
+                  <Table.Column>Date</Table.Column>
+                  <Table.Column>Vendor</Table.Column>
+                  <Table.Column>Items</Table.Column>
+                  <Table.Column>Total</Table.Column>
+                  <Table.Column>Actions</Table.Column>
+                </Table.Header>
+                <Table.Body>
+                  {submitted.map((inv) => (
+                    <Table.Row key={inv.id} id={inv.id}>
+                      <Table.Cell>
+                        <span className="font-medium text-sm">
+                          {inv.invoiceNumber}
+                        </span>
+                      </Table.Cell>
+                      <Table.Cell>{String(inv.invoiceDate)}</Table.Cell>
+                      <Table.Cell>{inv.vendorName}</Table.Cell>
+                      <Table.Cell>{inv.items.length}</Table.Cell>
+                      <Table.Cell>
+                        <span className="font-medium tabular-nums">
+                          {formatAmount(inv.totalAmount)}
+                        </span>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onPress={() => setViewingInvoice(inv)}
+                        >
+                          View
+                        </Button>
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Content>
+            </Table.ScrollContainer>
+          </Table>
         </div>
       )}
+
+      {/* Invoice detail modal */}
+      <Modal.Backdrop isOpen={viewingInvoice !== null}>
+        <Modal.Container>
+          {viewingInvoice && (
+            <Modal.Dialog>
+              <Modal.Header>
+                <div>
+                  <p className="font-bold">{viewingInvoice.invoiceNumber}</p>
+                  <p className="text-xs text-gray-500 font-normal mt-0.5">
+                    {String(viewingInvoice.invoiceDate)} &middot;{" "}
+                    {viewingInvoice.vendorName}
+                  </p>
+                </div>
+                <Modal.CloseTrigger onClick={() => setViewingInvoice(null)} />
+              </Modal.Header>
+              <Modal.Body>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left border-b border-gray-200">
+                      <th className="pb-2 font-medium text-gray-600">Part</th>
+                      <th className="pb-2 font-medium text-gray-600 text-right">
+                        Qty
+                      </th>
+                      <th className="pb-2 font-medium text-gray-600 text-right">
+                        Unit Cost
+                      </th>
+                      <th className="pb-2 font-medium text-gray-600 text-right">
+                        Total
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {viewingInvoice.items.map((item) => (
+                      <tr
+                        key={item.partName}
+                        className="border-b border-gray-100 last:border-0"
+                      >
+                        <td className="py-2">{item.partName}</td>
+                        <td className="py-2 text-right tabular-nums">
+                          {item.quantity}
+                        </td>
+                        <td className="py-2 text-right tabular-nums">
+                          {formatAmount(item.unitCostPrice)}
+                        </td>
+                        <td className="py-2 text-right tabular-nums">
+                          {formatAmount(item.totalPrice)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td
+                        colSpan={3}
+                        className="pt-3 text-right font-semibold text-sm"
+                      >
+                        Total
+                      </td>
+                      <td className="pt-3 text-right font-bold tabular-nums">
+                        {formatAmount(viewingInvoice.totalAmount)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </Modal.Body>
+            </Modal.Dialog>
+          )}
+        </Modal.Container>
+      </Modal.Backdrop>
     </div>
   );
 }
