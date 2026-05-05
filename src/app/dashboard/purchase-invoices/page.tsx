@@ -90,10 +90,7 @@ export default function PurchaseInvoicesPage() {
 
   const { data: parts = [] } = useQuery({
     queryKey: ["parts", vendorId],
-    queryFn: () =>
-      apiFetchDirect<Part[]>(
-        `/api/Part?vendorId=${vendorId}`,
-      ),
+    queryFn: () => apiFetchDirect<Part[]>(`/api/Part?vendorId=${vendorId}`),
     enabled: !!vendorId,
   });
 
@@ -240,9 +237,7 @@ export default function PurchaseInvoicesPage() {
                 if (!v) return;
                 setVendorId(v);
                 // Clear part selections — they belong to a different vendor's catalogue
-                setItems((prev) =>
-                  prev.map((i) => ({ ...i, partId: "" })),
-                );
+                setItems((prev) => prev.map((i) => ({ ...i, partId: "" })));
               }}
               placeholder="Select a vendor"
             >
@@ -314,7 +309,9 @@ export default function PurchaseInvoicesPage() {
                       isDisabled={!vendorId}
                       value={item.partId}
                       onChange={(v) => v && updateItem(item.uid, { partId: v })}
-                      placeholder={vendorId ? "Select part" : "Select a vendor first"}
+                      placeholder={
+                        vendorId ? "Select part" : "Select a vendor first"
+                      }
                     >
                       <Select.Trigger>
                         <Select.Value />

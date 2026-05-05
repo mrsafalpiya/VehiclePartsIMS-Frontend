@@ -49,6 +49,12 @@ export default function StaffLayout({
           >
             Appointments
           </Link>
+          <Link
+            href="/staff/sales/new"
+            className="text-sm px-2 py-1 rounded hover:bg-gray-100"
+          >
+            Sales
+          </Link>
         </nav>
         <button
           type="button"
