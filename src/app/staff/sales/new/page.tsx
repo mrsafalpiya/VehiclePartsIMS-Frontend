@@ -89,6 +89,9 @@ export default function NewSalesInvoicePage() {
   ]);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [invoice, setInvoice] = useState<SalesInvoiceResponseDto | null>(null);
+  const [emailStatus, setEmailStatus] = useState<"idle" | "sent" | "error">(
+    "idle",
+  );
 
   useEffect(() => {
     document.title =
@@ -115,6 +118,7 @@ export default function NewSalesInvoicePage() {
       ),
     onSuccess(result) {
       setInvoice(result.data);
+      setEmailStatus("idle");
       // Reset form
       setCustomerId("");
       setCustomerSearch("");
@@ -124,6 +128,19 @@ export default function NewSalesInvoicePage() {
     },
     onError(err: Error) {
       setValidationError(err.message);
+    },
+  });
+
+  const emailMutation = useMutation({
+    mutationFn: (invoiceId: number) =>
+      apiFetchDirect<{ message: string }>(`/api/email/invoice/${invoiceId}`, {
+        method: "POST",
+      }),
+    onSuccess() {
+      setEmailStatus("sent");
+    },
+    onError() {
+      setEmailStatus("error");
     },
   });
 
@@ -242,7 +259,8 @@ export default function NewSalesInvoicePage() {
         <div className="px-6 py-4 border-b border-gray-100">
           <h3 className="font-semibold text-base">Sale Details</h3>
           <p className="text-xs text-gray-500 mt-0.5">
-            Select a customer, add line items, then save to generate the invoice.
+            Select a customer, add line items, then save to generate the
+            invoice.
           </p>
         </div>
 
@@ -358,9 +376,7 @@ export default function NewSalesInvoicePage() {
                 const total = lineTotal(item);
                 const qtyNum = Number.parseInt(item.quantity, 10);
                 const overStock =
-                  part &&
-                  !Number.isNaN(qtyNum) &&
-                  qtyNum > part.stockQuantity;
+                  part && !Number.isNaN(qtyNum) && qtyNum > part.stockQuantity;
 
                 return (
                   <div
@@ -373,12 +389,8 @@ export default function NewSalesInvoicePage() {
                       fullWidth
                       isDisabled={partsLoading}
                       value={item.partId}
-                      onChange={(v) =>
-                        v && updateItem(item.uid, { partId: v })
-                      }
-                      placeholder={
-                        partsLoading ? "Loading…" : "Select part"
-                      }
+                      onChange={(v) => v && updateItem(item.uid, { partId: v })}
+                      placeholder={partsLoading ? "Loading…" : "Select part"}
                     >
                       <Select.Trigger>
                         <Select.Value />
@@ -471,7 +483,9 @@ export default function NewSalesInvoicePage() {
                 {loyaltyDiscount > 0 && (
                   <div className="flex justify-between text-green-700">
                     <span>Loyalty Discount (10%)</span>
-                    <span className="tabular-nums">−{fmt(loyaltyDiscount)}</span>
+                    <span className="tabular-nums">
+                      −{fmt(loyaltyDiscount)}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between font-semibold text-gray-900 border-t border-gray-200 pt-1.5 mt-0.5">
@@ -616,9 +630,40 @@ export default function NewSalesInvoicePage() {
               </Modal.Body>
 
               <Modal.Footer>
-                <Button variant="secondary" onPress={() => setInvoice(null)}>
-                  Close
-                </Button>
+                <div className="flex items-center gap-3 w-full">
+                  <div className="flex-1 text-sm">
+                    {emailStatus === "sent" && (
+                      <span className="text-green-600">
+                        Email sent to {invoice.customerEmail}
+                      </span>
+                    )}
+                    {emailStatus === "error" && (
+                      <span className="text-red-600">
+                        Failed to send email. Please try again.
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    variant="secondary"
+                    isPending={emailMutation.isPending}
+                    isDisabled={emailStatus === "sent"}
+                    onPress={() => emailMutation.mutate(invoice.id)}
+                  >
+                    {({ isPending }) => (
+                      <>
+                        {isPending && <Spinner color="current" size="sm" />}
+                        {isPending
+                          ? "Sending…"
+                          : emailStatus === "sent"
+                            ? "Email Sent"
+                            : "Send Invoice Email"}
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="secondary" onPress={() => setInvoice(null)}>
+                    Close
+                  </Button>
+                </div>
               </Modal.Footer>
             </Modal.Dialog>
           )}

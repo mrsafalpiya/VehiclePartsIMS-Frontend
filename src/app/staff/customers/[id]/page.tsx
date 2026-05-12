@@ -70,6 +70,8 @@ export default function CustomerDetailPage() {
     useState<VehicleResponseDto | null>(null);
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [expandedInvoice, setExpandedInvoice] = useState<number | null>(null);
+  const [emailSentFor, setEmailSentFor] = useState<number | null>(null);
+  const [emailErrorFor, setEmailErrorFor] = useState<number | null>(null);
 
   useEffect(() => {
     document.title =
@@ -175,6 +177,22 @@ export default function CustomerDetailPage() {
     },
     onError(err: Error) {
       window.alert(err.message);
+    },
+  });
+
+  // Send invoice email
+  const emailMutation = useMutation({
+    mutationFn: (invoiceId: number) =>
+      apiFetchDirect<{ message: string }>(`/api/email/invoice/${invoiceId}`, {
+        method: "POST",
+      }),
+    onSuccess(_, invoiceId) {
+      setEmailSentFor(invoiceId);
+      setEmailErrorFor(null);
+    },
+    onError(_, invoiceId) {
+      setEmailErrorFor(invoiceId);
+      setEmailSentFor(null);
     },
   });
 
@@ -425,6 +443,39 @@ export default function CustomerDetailPage() {
                   <p className="font-semibold">
                     Final Total: {formatAmount(inv.finalTotal)}
                   </p>
+                </div>
+                <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    isPending={
+                      emailMutation.isPending &&
+                      emailMutation.variables === inv.id
+                    }
+                    isDisabled={emailSentFor === inv.id}
+                    onPress={() => emailMutation.mutate(inv.id)}
+                  >
+                    {({ isPending }) => (
+                      <>
+                        {isPending && <Spinner color="current" size="sm" />}
+                        {isPending
+                          ? "Sending\u2026"
+                          : emailSentFor === inv.id
+                            ? "Email Sent"
+                            : "Send Invoice Email"}
+                      </>
+                    )}
+                  </Button>
+                  {emailSentFor === inv.id && (
+                    <span className="text-green-600 text-xs">
+                      Sent to {profile.email}
+                    </span>
+                  )}
+                  {emailErrorFor === inv.id && (
+                    <span className="text-red-600 text-xs">
+                      Failed to send. Please try again.
+                    </span>
+                  )}
                 </div>
               </div>
             )}
